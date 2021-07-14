@@ -24,10 +24,7 @@ namespace ConcurrentDictionary.ConcurrentWrite.Classes
             for (int k = 0, i = 2 * k + _writeParam; i <= _maxNum; k++, i = 2 * k + _writeParam)
             {
                 if (concurrentDictionaryWrapper.TryAdd(i, string.Format(@"${0} - {1}", _name, DateTime.Now)))
-                {
-                    Console.WriteLine("Added {0} key at {1}", i, string.Format(@"${0} - {1}", _name, DateTime.Now));
                     Thread.Sleep(_sleepDuration);
-                }
             }
         }
     }

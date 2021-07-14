@@ -1,6 +1,7 @@
 ﻿using ConcurrentDictionary.ConcurrentDict;
 using ConcurrentDictionary.ConcurrentWrite.Classes;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ConcurrentDictionary
@@ -40,14 +41,30 @@ namespace ConcurrentDictionary
 
                 Task.WaitAll(tasks);
 
-                Console.WriteLine("Ok!");
+                ValidateDict(concurrentDictionaryWrapper);
+               
                 Console.ReadKey();
             }
         }
 
-        private static void AddPairToDictionary(int signalKey, ConcurrentDictionaryWrapper concurrentDictionaryWrapper)
+        private static void AddPairToDictionary(int signalKey, ConcurrentDictionaryWrapper concurrentDictionaryWrapper, int count)
         {
-            concurrentDictionaryWrapper.TryAdd(concurrentDictionaryWrapper.Count(), string.Format(@"MS - {0} + {1}", signalKey - 1, signalKey - 2));
+            concurrentDictionaryWrapper.TryAdd(count + 2 * signalKey - 3, string.Format(@"MS - {0} + {1}", signalKey, signalKey - 1));
+        }
+
+        private static bool ValidateDict(ConcurrentDictionaryWrapper concurrentDictionaryWrapper)
+        {
+            bool ok = false;
+            var dict = concurrentDictionaryWrapper.GetDictionary();
+            foreach (KeyValuePair<int, string> kvp in dict)
+            {
+
+                Console.WriteLine(string.Format(@"Key: {0}; value: {1}", kvp.Key, kvp.Value));
+            }
+            if (ok)
+                Console.WriteLine("Ok!");
+
+            return ok;
         }
     }
 }

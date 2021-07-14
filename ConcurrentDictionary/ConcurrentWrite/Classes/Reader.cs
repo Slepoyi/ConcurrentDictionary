@@ -10,7 +10,7 @@ namespace ConcurrentDictionary.ConcurrentWrite.Classes
         private int _numberOfInsertsByMain; // [n/(2*5)]
         private int _sleepDuration;
 
-        public delegate void InsertHandler(int signalKey, ConcurrentDictionaryWrapper concurrentDictionaryWrapper);
+        public delegate void InsertHandler(int signalKey, ConcurrentDictionaryWrapper concurrentDictionaryWrapper, int count);
         public event InsertHandler Notify;
 
         public Reader(int maxNum, int divisionFactor, int sleepDuration)
@@ -29,12 +29,12 @@ namespace ConcurrentDictionary.ConcurrentWrite.Classes
             {
                 int signalKey = i * _divisionFactor - 1;
 
-                if (signalKey > _maxNum + _numberOfInsertsByMain)
+                if (signalKey > _maxNum)
                     return;
 
                 if (concurrentDictionaryWrapper.ContainsKey(signalKey))
                 {
-                    Notify?.Invoke(signalKey, concurrentDictionaryWrapper);
+                    Notify?.Invoke(signalKey, concurrentDictionaryWrapper, concurrentDictionaryWrapper.Count());
 
                     i += 1;
                 }

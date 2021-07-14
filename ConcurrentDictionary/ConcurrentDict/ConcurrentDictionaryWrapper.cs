@@ -40,9 +40,19 @@ namespace ConcurrentDictionary.ConcurrentDict
             }
         }
 
+        public bool TryGet(int key, out string value)
+        {
+            return dictionary.TryGetValue(key, out value);
+        }
+
         public bool ContainsKey(int key)
         {
             return dictionary.ContainsKey(key);
+        }
+
+        public Dictionary<int, string> GetDictionary()
+        {
+            return dictionary;
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using ConcurrentDictionary.ConcurrentDict;
-using ConcurrentDictionary.ConcurrentWrite.Classes;
+﻿using ConcurrentDictionary.Concurrent;
+using ConcurrentDictionary.Validation;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ConcurrentDictionary
@@ -12,59 +11,48 @@ namespace ConcurrentDictionary
         {
             int odd = 1;
             int even = 0;
+            int divisionFactor = 5;
             int sleepDuration = 100;
 
-            while (true)
+            Console.WriteLine("Enter the number n:");
+
+            if (!int.TryParse(Console.ReadLine(), out int n))
             {
-                Console.WriteLine("Enter the number n:");
-
-                if (!int.TryParse(Console.ReadLine(), out int n))
-                {
-                    Console.WriteLine("Something is wrong with your n. Please repeat.");
-                    continue;
-                }
-
-                ConcurrentDictionaryWrapper concurrentDictionaryWrapper = new ConcurrentDictionaryWrapper();
-
-                ConcurrentWriter concurrentWriter1 = new ConcurrentWriter(n, odd, "WS1", sleepDuration);
-                ConcurrentWriter concurrentWriter2 = new ConcurrentWriter(n, even, "WS2", sleepDuration);
-
-                Reader reader = new Reader(n, 5, sleepDuration);
-
-                reader.Notify += AddPairToDictionary;
-
-                Task[] tasks = new Task[3];
-
-                tasks[0] = Task.Factory.StartNew(() => concurrentWriter1.ConcurrentWriteToDict(concurrentDictionaryWrapper));
-                tasks[1] = Task.Factory.StartNew(() => concurrentWriter2.ConcurrentWriteToDict(concurrentDictionaryWrapper));
-                tasks[2] = Task.Factory.StartNew(() => reader.Read(concurrentDictionaryWrapper));
-
-                Task.WaitAll(tasks);
-
-                ValidateDict(concurrentDictionaryWrapper);
-               
-                Console.ReadKey();
+                Console.WriteLine("Something is wrong with your n.");
+                return;
             }
+
+            DictionaryWrapper concurrentDictionaryWrapper = new DictionaryWrapper();
+
+            DictionaryWriter concurrentWriter1 = new DictionaryWriter(n, odd, "WS1", sleepDuration, concurrentDictionaryWrapper);
+            DictionaryWriter concurrentWriter2 = new DictionaryWriter(n, even, "WS2", sleepDuration, concurrentDictionaryWrapper);
+
+            DictionaryReader reader = new DictionaryReader(n, divisionFactor, sleepDuration, concurrentDictionaryWrapper);
+
+            reader.InsertElement += AddPairToDictionary;
+
+            Task[] tasks = new Task[3];
+
+            tasks[0] = Task.Factory.StartNew(() => concurrentWriter1.ConcurrentWriteToDict());
+            tasks[1] = Task.Factory.StartNew(() => concurrentWriter2.ConcurrentWriteToDict());
+            tasks[2] = Task.Factory.StartNew(() => reader.Read());
+
+            Task.WaitAll(tasks);
+
+            DictionaryValidator validator = new DictionaryValidator();
+
+            if (validator.ValidateDictionary(concurrentDictionaryWrapper, n, divisionFactor))
+                Console.WriteLine("Seems ok.");
+            else
+                Console.WriteLine("Something is wrong.");
+
+            Console.ReadKey();
         }
 
-        private static void AddPairToDictionary(int signalKey, ConcurrentDictionaryWrapper concurrentDictionaryWrapper, int count)
+        private static void AddPairToDictionary(int firstPairKey, int secondPairKey, int count, DictionaryWrapper concurrentDictionaryWrapper)
         {
-            concurrentDictionaryWrapper.TryAdd(count + 2 * signalKey - 3, string.Format(@"MS - {0} + {1}", signalKey, signalKey - 1));
-        }
-
-        private static bool ValidateDict(ConcurrentDictionaryWrapper concurrentDictionaryWrapper)
-        {
-            bool ok = false;
-            var dict = concurrentDictionaryWrapper.GetDictionary();
-            foreach (KeyValuePair<int, string> kvp in dict)
-            {
-
-                Console.WriteLine(string.Format(@"Key: {0}; value: {1}", kvp.Key, kvp.Value));
-            }
-            if (ok)
-                Console.WriteLine("Ok!");
-
-            return ok;
+            concurrentDictionaryWrapper.TryAdd(count + firstPairKey + secondPairKey, 
+                string.Format(@"$MS - {0} + {1}", firstPairKey, secondPairKey));
         }
     }
 }

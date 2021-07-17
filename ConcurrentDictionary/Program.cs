@@ -29,8 +29,6 @@ namespace ConcurrentDictionary
 
             DictionaryReader reader = new DictionaryReader(n, divisionFactor, sleepDuration, concurrentDictionaryWrapper);
 
-            reader.InsertElement += AddPairToDictionary;
-
             Task[] tasks = new Task[3];
 
             tasks[0] = Task.Factory.StartNew(() => concurrentWriter1.ConcurrentWriteToDict());
@@ -49,10 +47,11 @@ namespace ConcurrentDictionary
             Console.ReadKey();
         }
 
-        private static void AddPairToDictionary(int firstPairKey, int secondPairKey, int count, DictionaryWrapper concurrentDictionaryWrapper)
+        public static async void AddPairToDictionary(int firstPairKey, int secondPairKey, int count, DictionaryWrapper concurrentDictionaryWrapper)
         {
-            concurrentDictionaryWrapper.TryAdd(count + firstPairKey + secondPairKey, 
-                string.Format(@"$MS - {0} + {1}", firstPairKey, secondPairKey));
+            await Task.Factory.StartNew(() => concurrentDictionaryWrapper.TryAdd(count + firstPairKey + secondPairKey, 
+                string.Format(@"$MS - {0} + {1}", firstPairKey, secondPairKey))
+            );
         }
     }
 }

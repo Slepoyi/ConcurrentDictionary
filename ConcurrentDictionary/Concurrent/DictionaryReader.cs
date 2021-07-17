@@ -13,9 +13,6 @@ namespace ConcurrentDictionary.Concurrent
         private DictionaryWrapper _concurrentDictionaryWrapper;
         private int _wsHappenedCounter = 0;
 
-        public delegate void InsertHandler(int firstPairKey, int secondPairKey, int count, DictionaryWrapper concurrentDictionaryWrapper);
-        public event InsertHandler InsertElement;
-
         public DictionaryReader(int maxNum, int divisionFactor, int sleepDuration, DictionaryWrapper concurrentDictionaryWrapper)
         {
             _maxNum = maxNum;
@@ -38,16 +35,17 @@ namespace ConcurrentDictionary.Concurrent
                 if (_firstElement.Item1 == _maxNum || _secondElement.Item1 == _maxNum)
                 {
                     if (_wsHappenedCounter % _divisionFactor == 0)
-                        InsertElement.Invoke(_firstElement.Item1, _secondElement.Item1, _concurrentDictionaryWrapper.Count(), 
-                            _concurrentDictionaryWrapper);
+                        Program.AddPairToDictionary(_firstElement.Item1, _secondElement.Item1, _concurrentDictionaryWrapper.Count(),
+                    _concurrentDictionaryWrapper);
 
                     break;
                 }
 
                 if (_wsHappenedCounter > 0 && _wsHappenedCounter % _divisionFactor == 0)
                 {
-                    InsertElement.Invoke(_firstElement.Item1, _secondElement.Item1, _concurrentDictionaryWrapper.Count(), 
-                        _concurrentDictionaryWrapper);
+                    Program.AddPairToDictionary(_firstElement.Item1, _secondElement.Item1, _concurrentDictionaryWrapper.Count(),
+                    _concurrentDictionaryWrapper);
+
                     _wsHappenedCounter = 0;
                 }
 
@@ -69,7 +67,6 @@ namespace ConcurrentDictionary.Concurrent
 
                 _wsHappenedCounter += 1;
             }
-            Console.WriteLine(key + " " + value);
         }
     }
 }

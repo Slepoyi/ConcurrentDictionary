@@ -67,6 +67,7 @@ namespace ConcurrentDictionary.Concurrent
 
                 _wsHappenedCounter += 1;
             }
+
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ConcurrentDictionary
             int odd = 1;
             int even = 0;
             int divisionFactor = 5;
-            int sleepDuration = 100;
+            int sleepDuration = 1000;
 
             Console.WriteLine("Enter the number n:");
 
